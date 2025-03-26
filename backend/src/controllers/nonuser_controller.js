@@ -5,11 +5,17 @@ const query = util.promisify(connection.query).bind(connection)
 
 const getVehicles = async (req, res) => {
 
-    const {fuel_type, transmission, seats, price_per_day, type} = req.body
+    const {name, fuel_type, transmission, seats, price_per_day, type} = req.body
 
     try {
         let queryStr = `SELECT * FROM vehicles WHERE 1=1`
         const queryParams = []
+
+        if (name) {
+            const new_name = name.trim().toLowerCase()
+            queryStr += ` AND name LIKE ?`
+            queryParams.push('%'+new_name+'%')
+        }
 
         if (fuel_type) {
             queryStr += ` AND fuel_type = ?`
