@@ -39,16 +39,15 @@ const registerUser = async (req,res) => {
 }
 
 const loginUser = async (req,res) => {
+    const { username, password } = req.body
 
-    const { input, password } = req.body
-
-    if (!input && !password) {
+    if (!username && !password) {
         throw Error("All Fields Required!")
     }
 
     try {
 
-        const results = await query(`SELECT * FROM users WHERE username = ? OR email = ?`,[input,input])
+        const results = await query(`SELECT * FROM users WHERE username = ? OR email = ?`,[username,username])
         if (results.length === 0) return res.status(400).json({error: "User Not Found"})
 
         const user = results[0]
@@ -58,7 +57,7 @@ const loginUser = async (req,res) => {
             
         const token = jwt.sign({userID: user['userID'], email: user['email'], username: user['username']}, process.env.JWT_SECRET)
 
-        return res.status(200).cookie("token", token).json({message: "Login Successful!", userID: user['userID']})
+        return res.status(200).cookie("token", token).json({message: "Login Successful!", user})
     } catch (error){
         return res.status(500).json({ error: "Database query error" })
     }
@@ -68,7 +67,7 @@ const loginUser = async (req,res) => {
 const logoutUser = async (req,res) => {
 
     const token = req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "")
-
+    console.log(token)
     if (!token) return res.status(401).json({error: "Unauthorized Request!"})
     
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET)

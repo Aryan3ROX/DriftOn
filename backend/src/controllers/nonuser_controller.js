@@ -6,7 +6,6 @@ const query = util.promisify(connection.query).bind(connection)
 const getVehicles = async (req, res) => {
 
     const {name, fuel_type, transmission, seats, price_per_day, type} = req.body
-
     try {
         let queryStr = `SELECT * FROM vehicles WHERE 1=1`
         const queryParams = []
@@ -25,7 +24,10 @@ const getVehicles = async (req, res) => {
             queryStr += ` AND transmission = ?`
             queryParams.push(transmission)
         }
-        if (seats) {
+        if (seats === '7+'){
+            queryStr += ` AND seats >= 7`
+        }
+        else if (seats) {
             queryStr += ` AND seats = ?`
             queryParams.push(seats)
         }
@@ -76,6 +78,16 @@ const getDrivers = async (req,res) => {
     }
 }
 
+const getPromos = async (req, res) => {
+  try {
+    const promos = await query(`SELECT * FROM promotions WHERE active = TRUE`)
+
+    return res.status(200).json({message: "Promotions Fetched Successfully!", promos})
+  } catch (error){
+    return res.status(500).json({ error: "Database query error" });
+  }
+}
+
 const getLeaderboard = async (req,res) => {
     try {
 
@@ -88,4 +100,4 @@ const getLeaderboard = async (req,res) => {
     }
 }
 
-export {getDrivers, getLeaderboard, getVehicles}
+export {getDrivers, getLeaderboard, getVehicles, getPromos}
