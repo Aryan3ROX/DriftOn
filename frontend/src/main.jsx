@@ -4,6 +4,7 @@ import App from './App.jsx'
 import { Provider } from 'react-redux'
 import store from "./redux/store.js"
 import Home from './components/Home.jsx'
+import AboutUs from './components/AboutUs.jsx'
 import Login from './components/Login.jsx'
 import Register from "./components/Register.jsx"
 import Vehicles from './components/Vehicles.jsx'
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Home />
+      },
+      {
+        path: "/about-us",
+        element: <AboutUs />
       },
       {
         path: "/login",

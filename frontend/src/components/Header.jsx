@@ -11,8 +11,8 @@ function Header() {
   const dispatch = useDispatch();
   const navItems = [
     {
-      name: "Home",
-      path: "/",
+      name: "About Us",
+      path: "/about-us",
       active: true,
     },
     {
@@ -80,7 +80,7 @@ function Header() {
             <div className="ml-4">
               <button
                 onClick={() => logoutHandler()}
-                className="inline-block px-6 py-2 text-lg bg-black duration-200 text-white hover:bg-white hover:text-black"
+                className="inline-block px-6 py-2 text-lg bg-black duration-200 text-white hover:bg-white hover:text-black rounded-md"
               >
                 Logout
               </button>
@@ -90,7 +90,7 @@ function Header() {
             <div className="ml-4">
               <button
                 onClick={() => nav("/login")}
-                className="inline-block px-6 py-2 text-lg bg-black duration-200 text-white hover:bg-white hover:text-black"
+                className="inline-block px-6 py-2 text-lg bg-black duration-200 text-white hover:bg-white hover:text-black rounded-md"
               >
                 Get Started
               </button>
