@@ -1,7 +1,8 @@
+import React from "react";
 import { useCallback, useEffect, useState } from "react";
-import logo from "../../src/assets/logo.avif";
-import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { Toaster } from "./ui/sonner";
+import { toast } from "sonner";
 
 const PriceRangeFilter = ({ value, onChange, min = 0, max = 10000 }) => {
   return (
@@ -76,11 +77,7 @@ const SearchBox = ({ value, onChange, ...props }) => (
 
 const Vehicles = () => {
   const nav = useNavigate();
-
-  const authStatus = useSelector((state) => state.auth.status);
-
   const [vehicles, setVehicles] = useState([]);
-
   const [filters, setFilters] = useState({
     name: "",
     fuel_type: "",
@@ -89,7 +86,6 @@ const Vehicles = () => {
     seats: "",
     price_per_day: "",
   });
-
   const filterOptions = {
     fuel_type: ["Petrol", "Diesel", "Electric", "Hybrid"],
     transmission: ["Manual", "Automatic"],
@@ -127,7 +123,7 @@ const Vehicles = () => {
       const data = await results.json();
       setVehicles(data.vehicles);
     } catch (error) {
-      console.error("Error fetching vehicles:", error);
+      toast.error("Error fetching vehicles:", error);
     }
   }, [filters]);
 
@@ -137,6 +133,7 @@ const Vehicles = () => {
 
   return (
     <div className="flex flex-col sm:flex-row min-h-screen">
+      <Toaster />
       <aside className="w-full sm:w-80 bg-white border-r sm:sticky sm:top-0 sm:h-screen overflow-y-auto">
         <div className="p-4 space-y-6">
           <div>
@@ -190,8 +187,6 @@ const Vehicles = () => {
           </div>
         </div>
       </aside>
-
-      {/* Main content */}
       <main className="flex-1 p-4">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-2xl font-bold mb-6">Available Vehicles</h1>

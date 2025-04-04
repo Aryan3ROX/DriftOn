@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Toaster } from "./ui/sonner";
+import { toast } from "sonner";
 
 function MyRides() {
   const nav = useNavigate();
   const [rides, setRides] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [expandedRide, setExpandedRide] = useState(null);
 
   useEffect(() => {
@@ -53,15 +54,13 @@ function MyRides() {
               };
             }
           }
-
           setRides(ridesData);
         } else {
-          setError(data.error || "Failed to fetch ride history");
-          setTimeout(() => nav("/login"), 1000);
+          toast.error(data.error);
+          setTimeout(() => nav("/login"));
         }
       } catch (error) {
-        console.log("Error fetching history:", error);
-        setError("Error loading ride history. Please try again.");
+        toast.error("Error loading ride history. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -100,19 +99,9 @@ function MyRides() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-md">
-          <p className="font-medium">{error}</p>
-          <p className="mt-2 text-sm">Redirecting to login page...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-w-5xl mx-auto p-4 md:p-6 ">
+      <Toaster />
       <h1 className="text-3xl font-bold mb-8 text-center md:text-left">
         My Rides
       </h1>

@@ -1,9 +1,10 @@
-import { react } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import logo from "../assets/logo.avif";
 import { logout } from "../redux/authSlice";
-// import "../index.css"
+import { Toaster } from "./ui/sonner";
+import { toast } from "sonner";
 
 function Header() {
   const nav = useNavigate();
@@ -46,15 +47,16 @@ function Header() {
         dispatch(logout());
         nav("/");
       } else {
-        console.error("Logout failed:", await res.json());
+        toast.error("Logout failed:", await res.json());
       }
     } catch (error) {
-      console.error("Logout error:", error);
+      toast.error("Logout error:", error);
     }
   };
 
   return (
     <header className="w-full pt-3 bg-white border-b">
+      <Toaster />
       <div className="w-full mx-auto px-4">
         <nav className="flex">
           <div className="mr-4 px-6 py-2 pb-3">

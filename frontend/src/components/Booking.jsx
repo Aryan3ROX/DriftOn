@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Toaster } from "./ui/sonner";
+import { toast } from "sonner";
 
 function Booking() {
   const { vehicleID } = useParams();
   const [vehicle, setVehicle] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [driverRequired, setDriverRequired] = useState(false);
   const [driverCost, setDriverCost] = useState(0);
   const [selectedDriver, setSelectedDriver] = useState({});
@@ -45,12 +46,11 @@ function Booking() {
             setAvailableDrivers(data.availableDrivers);
           }
         } else {
-          setError(data.error || "Failed to fetch vehicle details");
-          setTimeout(() => nav("/login"), 1000);
+          toast.error(data.error);
+          setTimeout(() => nav("/login"));
         }
       } catch (err) {
-        setError("Network error. Please try again.");
-        console.error("Error fetching vehicle:", err);
+        toast.error("Network error. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -82,7 +82,7 @@ function Booking() {
           setAvailableDrivers(data.drivers);
         }
       } catch (err) {
-        console.error("Error fetching drivers:", err);
+        toast.error("Error fetching drivers:", err);
       }
     };
 
@@ -100,8 +100,7 @@ function Booking() {
       if (res.ok) {
         setPromos(data.promos);
       } else {
-        setError(data.error || "Failed to fetch promos");
-        setTimeout(() => nav("/login"), 1000);
+        toast.error(data.error || "Failed to fetch promos");
       }
     };
     fetchPromos();
@@ -116,15 +115,13 @@ function Booking() {
       setPromoApplied(true);
       setDiscount(calculatedDiscount);
     }
-    console.log(discount, basePrice, driverPrice, driverDiscount)
   };
 
   const basePrice = vehicle.price_per_day * days;
   const driverPrice = driverRequired && selectedDriver ? driverCost : 0;
   const correctPreference = selectedDriver.preference === vehicle.type;
-  const driverDiscount = driverRequired && correctPreference
-    ? (basePrice + driverPrice) * 0.1
-    : 0;
+  const driverDiscount =
+    driverRequired && correctPreference ? (basePrice + driverPrice) * 0.1 : 0;
   const totalPrice = basePrice + driverPrice - driverDiscount - discount;
 
   useEffect(() => {
@@ -178,20 +175,23 @@ function Booking() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({vehicleID, distance: Math.ceil(days * 100 * Math.random()), days, price: totalPrice, driverID: selectedDriver.driverID})
-
-      })
-      const data = await res.json()
+        body: JSON.stringify({
+          vehicleID,
+          distance: Math.ceil(days * 100 * Math.random()),
+          days,
+          price: totalPrice,
+          driverID: selectedDriver.driverID,
+        }),
+      });
+      const data = await res.json();
 
       if (res.status === 201) {
-        sessionStorage.setItem('feedbackAuth', 'true')
-        setTimeout(nav(`/feedback/${data.rideID}`),1000)
+        sessionStorage.setItem("feedbackAuth", "true");
+        setTimeout(nav(`/feedback/${data.rideID}`), 1000);
       }
-
     } catch (error) {
-      console.error("Error booking ride:", error);
+      toast.error("Error booking ride:", error);
     }
-
   };
 
   if (loading) {
@@ -202,22 +202,9 @@ function Booking() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div
-          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-          role="alert"
-        >
-          <strong className="font-bold">Error: </strong>
-          <span className="block sm:inline">{error}</span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto px-4 py-10 max-w-screen">
+      <Toaster />
       <h1 className="text-3xl md:text-4xl font-bold text-center mb-10">
         {vehicle.name}
       </h1>
@@ -621,24 +608,17 @@ function Booking() {
             </div>
           </div>
         </div>
-
-        {/* Right Column - 1/3 width */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow-md p-6 lg:sticky lg:top-8">
             <h2 className="text-xl font-bold mb-4">Booking Summary</h2>
-
-            {/* Promo Code Section */}
             <div className="mb-6 pb-4 border-b border-gray-200">
               <label className="block text-gray-700 mb-2 font-medium">
                 Add a Promo Code for more Discounts!
               </label>
-
-              {/* Input and apply button */}
               <div className="flex mb-3">
                 <input
                   type="text"
                   value={selectedPromo.promo_code || ""}
-                  // disabled={promoApplied}
                   placeholder="Enter or select promo code"
                   className="flex-1 px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   readOnly
@@ -657,8 +637,6 @@ function Booking() {
                   {promoApplied ? "Remove" : "Apply"}
                 </button>
               </div>
-
-              {/* Scrollable promo codes section */}
               <div className="mt-3">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">
                   Available Promo Codes
@@ -698,8 +676,6 @@ function Booking() {
                   )}
                 </div>
               </div>
-
-              {/* Success message */}
               {promoApplied && (
                 <p className="mt-2 text-sm text-green-600 flex items-center">
                   <svg
@@ -717,8 +693,6 @@ function Booking() {
                 </p>
               )}
             </div>
-
-            {/* Price Breakdown */}
             <div className="space-y-3 mb-6">
               <div className="flex justify-between">
                 <span className="text-gray-600">Base Fare ({days} days)</span>
@@ -750,16 +724,12 @@ function Booking() {
                 <span>₹{totalPrice.toFixed(2)}</span>
               </div>
             </div>
-
-            {/* Book Now Button */}
             <button
               onClick={handleBooking}
               className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md transition duration-200 flex items-center justify-center"
             >
               Confirm Booking
             </button>
-
-            {/* Booking Policies */}
             <div className="mt-4 text-sm text-gray-500">
               <p className="mb-1">
                 By booking, you agree to our{" "}

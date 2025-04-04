@@ -7,8 +7,6 @@ import { useDispatch } from 'react-redux'
 import { login } from './redux/authSlice.js'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   const dispatch = useDispatch()
 
   useEffect(() => {

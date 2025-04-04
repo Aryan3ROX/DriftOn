@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { Toaster } from "./ui/sonner";
+import { toast } from "sonner";
 
 function Leaderboard() {
   const [rides, setRides] = useState([]);
   const [drivers, setDrivers] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -19,11 +20,10 @@ function Leaderboard() {
           setDrivers(data.drivers);
           setVehicles(data.vehicles);
         } else {
-          setError("Failed to fetch leaderboard data");
+          toast.error("Failed to fetch leaderboard data");
         }
       } catch (error) {
-        console.log("Error fetching leaderboard", error);
-        setError("An error occurred while loading the leaderboard");
+        toast.error("An error occurred while loading the leaderboard");
       } finally {
         setLoading(false);
       }
@@ -43,18 +43,9 @@ function Leaderboard() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-md">
-          <p className="font-medium">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-w-6xl mx-auto px-4 py-12">
+      <Toaster />
       <h1 className="text-3xl font-bold text-center mb-12">Leaderboard</h1>
       <div className="mb-16">
         <h2 className="text-2xl font-bold mb-6 pb-2 border-b">
