@@ -21,7 +21,7 @@ const authenticateToken = async (req, res, next) => {
   });
 };
 
-const booking = async (req, res) => {
+const bookingPage = async (req, res) => {
   const { vehicleID } = req.body;
   try {
     const vehicle = await query(`SELECT * FROM vehicles WHERE vehicleID = ?`, [
@@ -95,7 +95,6 @@ const submitFeedback = async (req, res) => {
       .status(201)
       .json({ message: "Leaderboard Updated Successfully!" });
   } catch (error) {
-    console.log(error)
     return res.status(500).json({ error: "Database query error" });
   }
 };
@@ -117,7 +116,6 @@ const viewHistory = async (req, res) => {
 
 const viewDetailedReview = async (req, res) => {
   const { rideID } = req.body;
-
   try {
     const review = await query(`SELECT * FROM leaderboard WHERE rideID = ?`, [
       rideID,
@@ -133,7 +131,7 @@ const viewDetailedReview = async (req, res) => {
 
 export {
   authenticateToken,
-  booking,
+  bookingPage,
   viewHistory,
   bookRide,
   submitFeedback,

@@ -27,7 +27,7 @@ function App() {
   return (
     <div className='min-h-screen flex flex-wrap content-between'>
       <Header />
-      <main>
+      <main className='mx-auto'>
         <Outlet />
       </main>
       <Footer />
