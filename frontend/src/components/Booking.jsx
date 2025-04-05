@@ -24,6 +24,7 @@ function Booking() {
     preference: "None",
   });
   const [showFilters, setShowFilters] = useState(false);
+  const [isBookingComplete, setIsBookingComplete] = useState(false);
   const nav = useNavigate();
 
   useEffect(() => {
@@ -186,13 +187,54 @@ function Booking() {
       const data = await res.json();
 
       if (res.status === 201) {
-        sessionStorage.setItem("feedbackAuth", "true");
-        setTimeout(nav(`/feedback/${data.rideID}`), 1000);
+        toast.success("Booking successful! Preparing your experience...");
+        sessionStorage.setItem("feedbackAuth", "true" );
+        setIsBookingComplete(true);
+        setTimeout(() => {
+          nav(`/feedback/${data.rideID}`);
+        }, 7500);
       }
     } catch (error) {
       toast.error("Error booking ride:", error);
     }
   };
+
+  if (isBookingComplete) {
+    return (
+      <div className="fixed inset-0 bg-blue-600 flex flex-col items-center justify-center z-50">
+        <div className="text-center">
+          <div className="mb-8">
+            <svg
+              className="w-20 h-20 mx-auto text-white animate-bounce"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </svg>
+          </div>
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Booking Confirmed!
+          </h2>
+          <p className="text-xl text-blue-100 mb-8">
+            Your luxury experience awaits...
+          </p>
+          <div className="flex justify-center items-center space-x-2 mb-8">
+            <div className="w-4 h-4 bg-white rounded-full animate-pulse delay-75"></div>
+            <div className="w-4 h-4 bg-white rounded-full animate-pulse delay-150"></div>
+            <div className="w-4 h-4 bg-white rounded-full animate-pulse delay-300"></div>
+          </div>
+
+          <p className="text-blue-100">Redirecting to feedback...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

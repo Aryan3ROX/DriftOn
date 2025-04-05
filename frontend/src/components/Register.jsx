@@ -31,6 +31,7 @@ function Register() {
       const data = await res.json();
 
       if (res.ok) {
+        toast.success("Registered Successfully!")
         setTimeout(() => navigate("/login"), 50);
       } else if (data.error === "Username or Email Already Exists!") {
         toast.error("Username or email is already taken");

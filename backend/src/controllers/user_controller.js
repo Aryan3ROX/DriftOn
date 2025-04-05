@@ -102,7 +102,7 @@ const submitFeedback = async (req, res) => {
 const viewHistory = async (req, res) => {
   const user = req.user;
   try {
-    const results = await query(`SELECT * FROM bookings WHERE userID = ?`, [
+    const results = await query(`SELECT * FROM bookings WHERE userID = ? ORDER BY date DESC`, [
       user.userID,
     ]);
 

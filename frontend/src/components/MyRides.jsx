@@ -148,7 +148,7 @@ function MyRides() {
               <div className="p-5">
                 <div className="flex flex-wrap justify-between items-center mb-4">
                   <h2 className="text-xl font-semibold">{`Ride #${
-                    index + 1
+                    rides.length - index
                   }`}</h2>
                   <div className="flex items-center">
                     <div
