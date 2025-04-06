@@ -42,7 +42,7 @@ function Booking() {
 
         const data = await res.json();
         if (res.ok) {
-          setVehicle(data.vehicle[0]);
+          setVehicle(data.vehicle);
           if (data.availableDrivers) {
             setAvailableDrivers(data.availableDrivers);
           }
@@ -185,7 +185,7 @@ function Booking() {
         }),
       });
       const data = await res.json();
-
+      console.log(data)
       if (res.status === 201) {
         toast.success("Booking successful! Preparing your experience...");
         sessionStorage.setItem("feedbackAuth", "true" );

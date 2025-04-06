@@ -1,114 +1,144 @@
-import util from "util";
-import connection from "../connection.js";
+import { exec } from 'child_process';
+import { promisify } from 'util';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const query = util.promisify(connection.query).bind(connection);
+const execAsync = promisify(exec);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const javaBridgePath = path.join(__dirname, '..', 'JavaBridge.java');
+const jdbcDriverPath = path.join(__dirname, '..', 'mysql-connector-j-8.0.33.jar');
+
+// Helper to run Java commands
+async function runJava(command, ...args) {
+  try {
+    // Make sure your Java file is compiled first with the JDBC driver
+    await execAsync(`javac -cp "${jdbcDriverPath}" ${javaBridgePath}`);
+    
+    // Set up classpath separator based on OS
+    const separator = process.platform === 'win32' ? ';' : ':';
+    
+    // Replace null/undefined values with "null" string
+    const processedArgs = args.map(arg => arg === null || arg === undefined ? "null" : arg);
+    
+    // Run the Java program with command and arguments
+    const { stdout, stderr } = await execAsync(
+      `java -cp "${path.dirname(javaBridgePath)}${separator}${jdbcDriverPath}" JavaBridge ${command} ${processedArgs.join(' ')}`
+    );
+    
+    if (stderr && stderr.trim() !== '') {
+      console.error('Java Error:', stderr);
+      return { error: stderr };
+    }
+    
+    return JSON.parse(stdout);
+  } catch (error) {
+    console.error('Error running Java:', error);
+    return { error: error.message };
+  }
+}
 
 const getVehicles = async (req, res) => {
-  const { name, fuel_type, transmission, seats, price_per_day, type } =
-    req.body;
+  const { name, fuel_type, transmission, seats, price_per_day, type } = req.body;
+  
   try {
-    let queryStr = `SELECT * FROM vehicles WHERE 1=1`;
-    const queryParams = [];
-
-    if (name) {
-      const new_name = name.trim().toLowerCase();
-      queryStr += ` AND name LIKE ?`;
-      queryParams.push("%" + new_name + "%");
+    const result = await runJava(
+      'getVehicles', 
+      name || null,
+      fuel_type || null,
+      transmission || null,
+      seats || null,
+      price_per_day || null,
+      type || null
+    );
+    
+    if (result.error) {
+      return res.status(500).json({ error: `Java error: ${result.error}` });
     }
-
-    if (fuel_type) {
-      queryStr += ` AND fuel_type = ?`;
-      queryParams.push(fuel_type);
+    
+    if (result.status === 'success') {
+      return res
+        .status(200)
+        .json({ message: "Fetched Vehicles Successfully!", vehicles: result.vehicles });
+    } else {
+      return res.status(500).json({ error: result.message || "Failed to fetch vehicles" });
     }
-    if (transmission) {
-      queryStr += ` AND transmission = ?`;
-      queryParams.push(transmission);
-    }
-    if (seats === "7+") {
-      queryStr += ` AND seats >= 7`;
-    } else if (seats) {
-      queryStr += ` AND seats = ?`;
-      queryParams.push(seats);
-    }
-    if (price_per_day) {
-      queryStr += ` AND price_per_day <= ?`;
-      queryParams.push(price_per_day);
-    }
-    if (type) {
-      queryStr += ` AND type = ?`;
-      queryParams.push(type);
-    }
-
-    const results = await query(queryStr, queryParams);
-
-    return res
-      .status(200)
-      .json({ message: "Fetched Vehicles Successfully!", vehicles: results });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ error: "Database query error" });
   }
 };
 
 const getDrivers = async (req, res) => {
   const { rating, price_per_day, preference } = req.body;
-
+  
   try {
-    let queryStr = `SELECT * FROM drivers WHERE 1=1`;
-    const queryParams = [];
-
-    if (rating) {
-      queryStr += ` AND rating >= ?`;
-      queryParams.push(rating);
+    const result = await runJava(
+      'getDrivers', 
+      rating || null,
+      price_per_day || null,
+      preference || null
+    );
+    
+    if (result.error) {
+      return res.status(500).json({ error: `Java error: ${result.error}` });
     }
-    if (price_per_day) {
-      queryStr += ` AND price_per_day <= ?`;
-      queryParams.push(price_per_day);
+    
+    if (result.status === 'success') {
+      return res
+        .status(200)
+        .json({ message: "Fetched Drivers Successfully!", drivers: result.drivers });
+    } else {
+      return res.status(500).json({ error: result.message || "Failed to fetch drivers" });
     }
-    if (preference && preference !== "None") {
-      queryStr += ` AND preference = ?`;
-      queryParams.push(preference);
-    }
-
-    const results = await query(queryStr, queryParams);
-
-    return res
-      .status(200)
-      .json({ message: "Fetched Drivers Successfully!", drivers: results });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ error: "Database query error" });
   }
 };
 
 const getPromos = async (req, res) => {
   try {
-    const promos = await query(`SELECT * FROM promotions WHERE active = TRUE`);
-
-    return res
-      .status(200)
-      .json({ message: "Promotions Fetched Successfully!", promos });
+    const result = await runJava('getPromos');
+    
+    if (result.error) {
+      return res.status(500).json({ error: `Java error: ${result.error}` });
+    }
+    
+    if (result.status === 'success') {
+      return res
+        .status(200)
+        .json({ message: "Promotions Fetched Successfully!", promos: result.promos });
+    } else {
+      return res.status(500).json({ error: result.message || "Failed to fetch promotions" });
+    }
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ error: "Database query error" });
   }
 };
 
 const getLeaderboard = async (req, res) => {
   try {
-    const rides = await query(
-      `SELECT * FROM leaderboard ORDER BY rating DESC LIMIT 10`
-    );
-    const drivers = await query(
-      `SELECT * FROM drivers ORDER BY rating DESC LIMIT 10`
-    );
-    const vehicles = await query(
-      `SELECT image_url, name FROM vehicles NATURAL JOIN leaderboard ORDER BY rating DESC LIMIT 10`
-    );
-    return res.status(200).json({
-      message: "Fetched Leaderboard Successfully!",
-      rides,
-      drivers,
-      vehicles,
-    });
+    const result = await runJava('getLeaderboard');
+    
+    if (result.error) {
+      return res.status(500).json({ error: `Java error: ${result.error}` });
+    }
+    
+    if (result.status === 'success') {
+      return res
+        .status(200)
+        .json({ 
+          message: "Fetched Leaderboard Successfully!", 
+          rides: result.rides,
+          drivers: result.drivers,
+          vehicles: result.vehicles
+        });
+    } else {
+      return res.status(500).json({ error: result.message || "Failed to fetch leaderboard" });
+    }
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ error: "Database query error" });
   }
 };
