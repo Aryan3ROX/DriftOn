@@ -263,7 +263,7 @@ function Booking() {
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold mb-4">Vehicle Details</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="bg-gray-50 p-3 rounded-lg text-center">
                 <p className="text-gray-500 text-sm mb-1">Fuel Type</p>
                 <p className="font-semibold">{vehicle.fuel_type}</p>
@@ -279,6 +279,10 @@ function Booking() {
               <div className="bg-gray-50 p-3 rounded-lg text-center">
                 <p className="text-gray-500 text-sm mb-1">Seats</p>
                 <p className="font-semibold">{vehicle.seats}</p>
+              </div>
+              <div className="bg-gray-50 p-3 rounded-lg text-center">
+                <p className="text-gray-500 text-sm mb-1">Mileage</p>
+                <p className="font-semibold">{vehicle.mileage} {vehicle.fuel_type === 'Electric' ? "km/kWh" : "km/l"}</p>
               </div>
             </div>
           </div>
@@ -445,12 +449,8 @@ function Booking() {
                       </button>
                     </div>
                   )}
-
-                  {/* Driver List with Scrolling */}
                   <div className="mb-6">
                     {(() => {
-                      // const availableDrivers = getFilteredDrivers();
-
                       if (availableDrivers.length === 0) {
                         return (
                           <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
@@ -490,7 +490,6 @@ function Booking() {
                                   setSelectedDriver(driver);
                                 }}
                               >
-                                {/* Driver Header with name and price */}
                                 <div className="flex items-center justify-between mb-2">
                                   <h4 className="font-bold text-lg">
                                     {driver.name}
@@ -499,10 +498,7 @@ function Booking() {
                                     ₹{driver.price_per_day}/day
                                   </span>
                                 </div>
-
-                                {/* Driver Details Grid */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600 mb-3">
-                                  {/* Rating */}
                                   <div className="flex items-center">
                                     <svg
                                       className="w-4 h-4 text-yellow-400 mr-1"
@@ -513,8 +509,6 @@ function Booking() {
                                     </svg>
                                     <span>{driver.rating} Rating</span>
                                   </div>
-
-                                  {/* Experience */}
                                   <div className="flex items-center">
                                     <svg
                                       className="w-4 h-4 text-gray-500 mr-1"
@@ -534,8 +528,6 @@ function Booking() {
                                       experience
                                     </span>
                                   </div>
-
-                                  {/* Preference */}
                                   <div className="flex items-center">
                                     <svg
                                       className="w-4 h-4 text-gray-500 mr-1"
@@ -556,8 +548,6 @@ function Booking() {
                                         : "Prefers " + driver.preference + "s"}
                                     </span>
                                   </div>
-
-                                  {/* Total Trips */}
                                   <div className="flex items-center">
                                     <svg
                                       className="w-4 h-4 text-gray-500 mr-1"
@@ -575,8 +565,6 @@ function Booking() {
                                     <span>{driver.total_trips} trips</span>
                                   </div>
                                 </div>
-
-                                {/* Selection UI */}
                                 <div className="flex justify-between items-center">
                                   <span
                                     className={`text-sm ${
@@ -597,8 +585,6 @@ function Booking() {
                       );
                     })()}
                   </div>
-
-                  {/* Driver Days Selection - Only show when a driver is selected */}
                   {selectedDriver && (
                     <div className="mt-4 bg-gray-50 rounded-lg p-4 border border-gray-200">
                       <label className="block text-gray-700 mb-2 font-medium">
